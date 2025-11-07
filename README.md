@@ -1,12 +1,16 @@
 # YOLO 기반 PCB기판 결함 탐색
-
-
-> Option A
-
-## Members
-- 임주홍 전기공학 juehong9253@gmail.com
+### Members
+- 임주홍 전기공학
 - 정명재 융합전자공학 qwertymike@hanyang.ac.kr
 
+## 1. Proposal (Option1)
 
-## Datasets
-<https://www.kaggle.com/datasets/akhatova/pcb-defects/data>
+## 2. Datasets
+
+## 3. Methodology
+
+## 4. Evaluation & Analysis
+
+## 5. Related Works
+
+## 6. Conclusion
