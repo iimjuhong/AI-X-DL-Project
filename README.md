@@ -85,7 +85,7 @@ YOLO 모델의 학습 및 구현을 넘어, 실제 산업 현장에서의 적용
 : Confusion Matrix(혼동 행렬) 분석 결과, 대부분의 결함은 대각선(True Positive)에 밀집되어 모델이 클래스 분류를 정확히 수행했음을 보여주었다. 하지만 일부 spur 결함이 short 또는 spurious_copper로 오분류되는 사례가 관찰되었다. 이는 spur와 spurious_copper가 모두 '불필요한 구리 조각'이라는 시각적 유사성을 공유하기 때문에 모델이 혼동을 일으킨 것으로 분석된다.
 
 >PR Curve 분석
-Precision-Recall 곡선(PR Curve) 분석 결과 : spur 결함의 곡선이 다른 클래스(예: missing_hole)의 곡선보다 확연히 아래쪽에 위치하였다. 이는 spur 결함을 더 많이 찾으려고 할수록(재현율을 높이려 할수록), 관련 없는 것을 spur로 잘못 예측하는(정밀도가 급격히 하락하는) 경향이 다른 결함보다 크다는 것을 의미하며, 성능 표의 spur 결함에 대한 낮은 mAP 수치를 뒷받침한다.
+: Precision-Recall 곡선(PR Curve) 분석 결과 spur 결함의 곡선이 다른 클래스(예: missing_hole)의 곡선보다 확연히 아래쪽에 위치하였다. 이는 spur 결함을 더 많이 찾으려고 할수록(재현율을 높이려 할수록), 관련 없는 것을 spur로 잘못 예측하는(정밀도가 급격히 하락하는) 경향이 다른 결함보다 크다는 것을 의미하며, 성능 표의 spur 결함에 대한 낮은 mAP 수치를 뒷받침한다.
 <img width="691" height="528" alt="469852e4-9ecb-42ad-a2e6-87ed9d45bbbf" src="https://github.com/user-attachments/assets/fe0a643d-e814-4d5f-b7e1-427395dcb9ef" />
 <img width="1189" height="690" alt="0c622085-535e-454e-b205-a51a97ec4c9d" src="https://github.com/user-attachments/assets/7b6733ec-6624-4784-baae-3748f0158e60" />
 <img width="1189" height="690" alt="81e3fb1e-216d-4492-8955-1bde89ba67ae" src="https://github.com/user-attachments/assets/5341a4d6-c342-4c35-b2e1-c4d8873786cf" />
