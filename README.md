@@ -1,6 +1,6 @@
 # YOLO 기반 PCB기판 결함 탐색
 ### Members
-- 임주홍 전기공학
+- 임주홍 전기공학 juehong9253@gmail.com
 - 정명재 융합전자공학 qwertymike@hanyang.ac.kr
 
 ## 1. Proposal (Option1)
