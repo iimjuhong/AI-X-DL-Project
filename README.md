@@ -12,6 +12,18 @@ PCB(인쇄회로기판)은 현대 전자제품 제조 공정에 많이 쓰이는
 YOLO 모델의 학습 및 구현을 넘어, 실제 산업 현장에서의 적용 신뢰도를 보증하는 것을 중점을 두었습니다. 최종 목적은 결함의 유무 판정을 넘어, 판정 부분 비교를 위한 정량적 데이터(mAP, Precision, Recall)를 제공함으로써 공정 개선에 기여하는 것입니다.
 
 ## 2. Datasets
+### 2.1 데이터 수집
+본 연구는 Kaggle의 'PCB Defects' 데이터셋(akhatova/pcb-defects)을 사용하였다. 
+
+이 데이터셋은 6가지 주요 PCB 결함 유형을 포함하고 있다. 각 클래스는 제조 공정상의 각기 다른 문제를 대변한다.
+- missing_hole
+- mouse_bite
+- open_circuit
+- short
+- spur
+- spurious_copper
+
+이 중 spur(회로에서 뾰족하게 튀어나온 돌기)와 spurious_copper(회로와 무관하게 잔류하는 구리 조각)는 모두 '불필요한 구리'라는 시각적 유사성을 공유하며, 형태가 비정형적이고 크기가 미세하여 모델이 탐지하고 분류하기에 가장 까다로운 유형으로 분석되었다.
 
 ## 3. Methodology
 
