@@ -139,8 +139,7 @@ PCB 결함은 제품의 신뢰도와 직결되므로 신속하고 정확한 검�
 
 ## 📌 5. Related Works
 * J. Yosinski, J. Clune, Y. Bengio, and H. Lipson, "How transferable are features in deep neural networks?," in Advances in Neural Information Processing Systems (NIPS), 2014.
-* Ultralytics, "YOLOv8 Documentation," https://docs.ultralytics.com/, 2024.
-* A. Akhatova et al., "PCB Defects Dataset," Kaggle, 2022.
+* Ultralytics, "YOLOv11 Documentation.
 * J. Redmon, S. Divvala, R. Girshick, and A. Farhadi, "You Only Look Once: Unified, Real-Time Object Detection," in CVPR, 2016.
 * I. Loshchilov and F. Hutter, "Decoupled Weight Decay Regularization (AdamW)," in ICLR, 2019.
 
