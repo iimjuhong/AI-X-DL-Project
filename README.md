@@ -5,7 +5,7 @@
 
 ## Members
 - 임주홍 전기공학
-- 정명재 융합전자공학
+- 정명재 융합전자공학 qwertymike@hanyang.ac.kr
 
 
 ## Datasets
