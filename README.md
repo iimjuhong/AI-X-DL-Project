@@ -4,7 +4,7 @@
 > Option A
 
 ## Members
-- 임주홍 전기공학
+- 임주홍 전기공학 juehong9253@gmail.com
 - 정명재 융합전자공학 qwertymike@hanyang.ac.kr
 
 
