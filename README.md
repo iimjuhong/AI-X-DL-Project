@@ -55,4 +55,4 @@ YOLO 모델의 학습 및 구현을 넘어, 실제 산업 현장에서의 적용
 
 ## 📌 5. Related Works
 
-## 6. Conclusion
+## 📌 6. Conclusion
