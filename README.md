@@ -16,7 +16,7 @@ YOLO 모델의 학습 및 구현을 넘어, 실제 산업 현장에서의 적용
 
 ## 📌 2. Datasets
 ### 2.1 데이터 수집
-본 연구는 Kaggle의 'PCB Defects' 데이터셋(akhatova/pcb-defects)을 사용하였습니다. 
+본 프로젝트는 Kaggle의 'PCB Defects' 데이터셋(akhatova/pcb-defects)을 사용하였습니다. 
 
 이 데이터셋은 6가지 주요 PCB 결함 유형을 포함하고 있습니다. 각 클래스는 제조 공정상의 각기 다른 문제를 대변합니다.
 - missing_hole
@@ -33,11 +33,11 @@ YOLO 모델의 학습 및 구현을 넘어, 실제 산업 현장에서의 적용
 ***
 
 ### 2.2 데이터 전처리
-- XML 파싱: 수백 개의 개별 어노테이션 파일(.xml)을 파싱하여, 파일명, 원본 이미지 크기(width, height), 결함 클래스, 바운딩 박스 좌표(xmin, ymin, xmax, ymax) 정보를 추출하였다. 이 모든 정보를 단일 Pandas DataFrame으로 변환하여 데이터 관리를 용이하게 하였습니다.
+- XML 파싱: 수백 개의 개별 어노테이션 파일(.xml)을 파싱하여, 파일명, 원본 이미지 크기(width, height), 결함 클래스, 바운딩 박스 좌표(xmin, ymin, xmax, ymax) 정보를 추출하였습니다. 이 모든 정보를 단일 Pandas DataFrame으로 변환하여 데이터 관리를 용이하게 하였습니다.
 - 이미지 리사이즈: YOLOv11 모델의 표준 입력 크기이자, 연산 효율성과 탐지 성능 간의 균형을 고려하여 모든 이미지를 640x640 픽셀로 일괄 리사이즈하였습니다.
-좌표 스케일링: 원본 이미지 크기에 맞춰져 있던 바운딩 박스 좌표를, 2단계에서 리사이즈된 640x640 크기에 맞게 비례적으로 스케일링하였습니다.
+- 좌표 스케일링: 원본 이미지 크기에 맞춰져 있던 바운딩 박스 좌표를, 2단계에서 리사이즈된 640x640 크기에 맞게 비례적으로 스케일링하였습니다.
 - YOLO 포맷 변환: YOLO 학습에 필요한 텍스트(.txt) 라벨 형식(class_id, x_center, y_center, width, height - 모든 값은 0과 1 사이로 정규화됨)으로 변환하였습니다.
-- 데이터 분할: 전체 데이터셋을 학습(Train), 검증(Validation), 테스트(Test) 셋으로 8:1:1의 비율로 명확히 분리하여 저장하였다. 테스트 셋은 모델의 최종 성능 평가를 위해서만 사용되며, 학습 및 검증 과정에는 일절 관여하지 않도록 하여 평가의 객관성을 확보하였습니다.
+- 데이터 분할: 전체 데이터셋을 학습(Train), 검증(Validation), 테스트(Test) 셋으로 8:1:1의 비율로 명확히 분리하여 저장하였습니다. 테스트 세트는 모델의 최종 성능 평가를 위해서만 사용되며, 학습 및 검증 과정에는 일절 관여하지 않도록 하여 평가의 객관성을 확보하였습니다.
 
 ***
 
@@ -50,9 +50,9 @@ YOLO 모델의 학습 및 구현을 넘어, 실제 산업 현장에서의 적용
 
 
 ## 📌 3. Methodology
-PCB 결함은 제품의 신뢰도와 직결되므로 신속하고 정확한 검출이 필수적이다. 따라서, 실시간성과 높은 정확도를 강점으로 하는 YOLO(You Only Look Once) 아키텍처를 핵심 방법론으로 튜닝하는 방식을 채택하였습니다.
+PCB 결함은 제품의 신뢰도와 직결되므로 신속하고 정확한 검출이 필수적입니다. 따라서, 실시간성과 높은 정확도를 강점으로 하는 YOLO(You Only Look Once) 아키텍처를 핵심 방법론으로 튜닝하는 방식을 채택하였습니다.
 ### 3.1 데이터셋 분할
-전체 데이터셋은 총 1386개의 이미지와 6가지의 결함 라벨을 포함한다. 모델의 학습, 검증, 평가를 위해 데이터셋은 임의로 8:1:1 비율로 분리하였습니다.
+전체 데이터셋은 총 1386개의 이미지와 6가지의 결함 라벨을 포함합니다. 모델의 학습, 검증, 평가를 위해 데이터셋은 임의로 각각 8:1:1 비율로 분리하였습니다.
 - 학습(Train) 세트: 1108개 이미지 
 - 검증(Validation) 세트: 138개 이미지
 - 테스트(Test) 세트: 138개 이미지
@@ -108,10 +108,10 @@ split_images_and_labels(resized_img_dir, yolo_labels, output_dir_processed, trai
 본 프로젝트는 ultralytics 라이브러리에서 제공하는 YOLO v11 모델 아키텍처의 'small' (s) 버전을 기반으로 한 커스텀 모델로, 속도와 정확도 간의 균형이 뛰어나 실제 산업 현장의 실시간 검사 시스템에 적용하기에 적합하다고 판단하여 선정하였습니다.
 - YOLO v11s는 경량화된(small) 버전으로, 백본(Backbone)과 넥(Neck), 헤드(Head)로 구성됩니다.
 - CNN과 유사하게, 이미지의 특징(feature)을 추출하는 Convolutional 레이어들이 백본을 이룹니다.
-- PANet (Path Aggregation Network) 등의 구조(Neck)를 통해 다양한 스케일의 특징을 집계합니다.
+- PANet (Path Aggregation Network) 등의 구조(Neck)를 통해 다양한 feature map들을 가진 이미지들의 특징을 집계합니다.
 - 최종적으로 헤드에서 바운딩 박스(좌표)와 클래스 확률을 예측합니다.
 
-<img width="968" height="871" alt="image" src="https://github.com/user-attachments/assets/62ffe9f6-c46e-4639-97c4-887e1ae0473f" />
+<img width="1581" height="1505" alt="image" src="https://github.com/user-attachments/assets/69e7166b-3b36-4b2b-b9a4-3f841a5b0015" />
 
 ***
 
@@ -123,26 +123,17 @@ split_images_and_labels(resized_img_dir, yolo_labels, output_dir_processed, trai
 - image_size: 640
 
 ```python
-classes = ['missing_hole', 'mouse_bite', 'open_circuit',
-           'short', 'spur', 'spurious_copper']
+model_name = 'yolo11s.pt'
+batch = 16
+epochs = 10
+imgsz = 640
+lr0 = 0.001
+lrf = 0.0001
+optimizer = 'Adam'
 
-# test 셋을 명시적으로 제외한 data.yaml 내용
-all_data_yaml_content = f"""
-path: {output_dir.as_posix()}
-train: images/train
-val: images/val
-names:
-    0: {classes[0]}
-    1: {classes[1]}
-    2: {classes[2]}
-    3: {classes[3]}
-    4: {classes[4]}
-    5: {classes[5]}
-"""
+run_name = 'yolo11s_train_val_only'
 
-data_path = project_root / 'data.yaml'
-with open(data_path, 'w') as f:
-    f.write(all_data_yaml_content)
+model = YOLO(model_name)
 ```
 
 ***
@@ -151,16 +142,6 @@ with open(data_path, 'w') as f:
 모델은 train 및 validation 데이터셋을 사용하여 학습하였습니다. 학습은 사전 훈련된(pre-trained) 가중치를 기반으로 전이 학습(Transfer Learning)을 수행하여, 적은 데이터로도 PCB 결함이라는 특정 도메인에 대한 높은 탐지 성능을 높였습니다. 학습 과정 동안 매 에포크(epoch)마다 validation 세트에 대한 성능(예: mAP@0.5)이 측정되었으며, 제공된 노트북에서는 이 측정값 중 가장 높은 성능을 기록한 시점의 모델 가중치가 적용된 best.pt 파일을 최종 모델로 선정하였습니다.
 
 ```python
-model_name = 'yolo11s.pt'
-batch = 16
-epochs = 100
-imgsz = 640
-lr0 = 0.001
-lrf = 0.0001
-optimizer = 'Adam'
-
-run_name = 'yolo11s_train_val_only'
-
 model = YOLO(model_name)
 try:
     model.train(
