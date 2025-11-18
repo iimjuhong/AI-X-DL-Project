@@ -59,46 +59,34 @@ PCB 결함은 제품의 신뢰도와 직결되므로 신속하고 정확한 검�
 분할 구조를 통해 모델이 충분한 양의 데이터로 학습하고, 학습 과정에서 과적합(overfitting)을 모니터링하며, 최종적으로 학습에 사용되지 않은 데이터를 통해 일반화 성능을 객관적으로 평가할 수 있도록 설계하였습니다.
 
 ```python
-def split_images_and_labels(images_dir, labels, output_dir, train_split=0.8, val_split=0.1):
-    """YOLO 포맷으로 변환된 라벨과 이미지를 train/val/test 세트로 분할"""
-    os.makedirs(output_dir / 'images' / 'train', exist_ok=True)
-    os.makedirs(output_dir / 'images' / 'val', exist_ok=True)
-    os.makedirs(output_dir / 'images' / 'test', exist_ok=True)
-    os.makedirs(output_dir / 'labels' / 'train', exist_ok=True)
-    os.makedirs(output_dir / 'labels' / 'val', exist_ok=True)
-    os.makedirs(output_dir / 'labels' / 'test', exist_ok=True)
+unique_filenames = yolo_df['filename'].unique()
+np.random.shuffle(unique_filenames)
 
-    image_labels = {}
-    for label in labels:
-        filename = label[0]
-        if filename not in image_labels:
-            image_labels[filename] = []
-        image_labels[filename].append(label)
+train_end = int(len(unique_filenames) * 0.8)
+val_end = train_end + int(len(unique_filenames) * 0.1)
 
-    image_filenames = list(image_labels.keys())
-    random.shuffle(image_filenames)
+splits = {
+    'train': unique_filenames[:train_end],
+    'val': unique_filenames[train_end:val_end],
+    'test': unique_filenames[val_end:]
+}
 
-    num_images = len(image_filenames)
-    num_train = int(num_images * train_split)
-    num_val = int(num_images * val_split)
+print("파일 이동 및 라벨 파일 생성 중")
+for split, filenames in splits.items():
+    for fname in tqdm(filenames, desc=f"Processing {split}"):
+        # 이미지 이동 (Copy)
+        src_img = resized_img_dir / fname
+        dst_img = output_dir_processed / 'images' / split / fname
+        if src_img.exists():
+            shutil.copy(src_img, dst_img)
 
-    train_filenames = image_filenames[:num_train]
-    val_filenames = image_filenames[num_train:num_train + num_val]
-    test_filenames = image_filenames[num_train + num_val:]
+        # 라벨 생성
+        file_objects = yolo_df[yolo_df['filename'] == fname]
+        label_path = output_dir_processed / 'labels' / split / f"{Path(fname).stem}.txt"
 
-    for dataset, filenames in [(Path('train'), train_filenames), (Path('val'), val_filenames), (Path('test'), test_filenames)]:
-        for filename in filenames:
-            labels = image_labels[filename]
-            with open(output_dir / 'labels' / dataset / f'{Path(filename).stem}.txt', 'w') as label_file:
-                for label in labels:
-                    _, class_index, x_center, y_center, bbox_width, bbox_height = label
-                    label_file.write(f"{class_index} {x_center} {y_center} {bbox_width} {bbox_height}\n")
-            shutil.copy(images_dir / filename, output_dir / 'images' / dataset / filename)
-
-classes = ['missing_hole', 'mouse_bite', 'open_circuit', 'short', 'spur', 'spurious_copper']
-yolo_labels = convert_to_yolo_labels(annot_df_resized, classes)
-output_dir_processed = project_root / 'data_processed'
-split_images_and_labels(resized_img_dir, yolo_labels, output_dir_processed, train_split=0.8, val_split=0.1)
+        with open(label_path, 'w') as f:
+            for _, row in file_objects.iterrows():
+                f.write(f"{int(row['class_id'])} {row['x_center']:.6f} {row['y_center']:.6f} {row['bbox_w']:.6f} {row['bbox_h']:.6f}\n")
 ```
 
 
@@ -123,17 +111,25 @@ split_images_and_labels(resized_img_dir, yolo_labels, output_dir_processed, trai
 - image_size: 640
 
 ```python
-model_name = 'yolo11s.pt'
-batch = 16
-epochs = 10
-imgsz = 640
-lr0 = 0.001
-lrf = 0.0001
-optimizer = 'Adam'
+model = YOLO('yolo11s.pt')
 
-run_name = 'yolo11s_train_val_only'
-
-model = YOLO(model_name)
+try:
+    results = model.train(
+        data=str(yaml_path),
+        epochs=100,
+        batch=16,
+        imgsz=640,
+        project=str(results_base_dir_colab),
+        name='yolo11s_run',
+        optimizer='Adam'
+        exist_ok=True,
+        hsv_h=0.015  # Hue (색조): -0.015~0.015 범위로 변화
+        hsv_s=0.7    # Saturation (채도): -0.7~0.7 범위로 변화  
+        hsv_v=0.4    # Value (명도): -0.4~0.4 범위로 변화
+        degrees=10.0,
+        fliplr=0.0,
+        mixup=0.3
+    )
 ```
 
 ***
@@ -142,36 +138,38 @@ model = YOLO(model_name)
 모델은 train 및 validation 데이터셋을 사용하여 학습하였습니다. 학습은 사전 훈련된(pre-trained) 가중치를 기반으로 전이 학습(Transfer Learning)을 수행하여, 적은 데이터로도 PCB 결함이라는 특정 도메인에 대한 높은 탐지 성능을 높였습니다. 학습 과정 동안 매 에포크(epoch)마다 validation 세트에 대한 성능(예: mAP@0.5)이 측정되었으며, 제공된 노트북에서는 이 측정값 중 가장 높은 성능을 기록한 시점의 모델 가중치가 적용된 best.pt 파일을 최종 모델로 선정하였습니다.
 
 ```python
-model = YOLO(model_name)
+results_base_dir_colab = Path('/content/pcb_results')
+dest_results_dir_drive = project_root / 'results'
+
+model = YOLO('yolo11s.pt')
+
 try:
-    model.train(
-        data=str(data_path),
-        epochs=epochs,
-        batch=batch,
-        lr0=lr0,
-        lrf=lrf,
-        imgsz=imgsz,
-        optimizer=optimizer,
+    results = model.train(
+        data=str(yaml_path),
+        epochs=100,
+        batch=16,
+        imgsz=640,
         project=str(results_base_dir_colab),
-        name=run_name,
+        name='yolo11s_run',
+        optimizer='Adam'
         exist_ok=True,
-        hsv_h=0.0,
-        hsv_s=0.0,
-        hsv_v=0.0,
+        hsv_h=0.015  # Hue (색조): -0.015~0.015 범위로 변화
+        hsv_s=0.7    # Saturation (채도): -0.7~0.7 범위로 변화  
+        hsv_v=0.4    # Value (명도): -0.4~0.4 범위로 변화
         degrees=10.0,
         fliplr=0.0,
-        mixup=0.3,
-
+        mixup=0.3
     )
 
-    # 학습 결과를 Drive로 복사
-    results_dir_colab = results_base_dir_colab / run_name
-    dest_final_run_dir = dest_results_dir_drive / run_name
-    shutil.copytree(results_dir_colab, dest_final_run_dir, dirs_exist_ok=True)
-    print(f" 학습 결과가 Drive로 복사되었습니다: {dest_final_run_dir}")
+    # 결과 복사
+    print("학습 결과를 Google Drive로 복사 중")
+    source_dir = results_base_dir_colab / 'yolo11s_run'
+    dest_dir = dest_results_dir_drive / 'yolo11s_run'
+    shutil.copytree(source_dir, dest_dir, dirs_exist_ok=True)
+    print(f"모든 과정 완료! 결과 위치: {dest_dir}")
 
 except Exception as e:
-    print(f" 모델 학습 중 오류 발생: {e}")
+    print(f"\n학습 중 오류 발생: {e}")
 ```
 ***
 
