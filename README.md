@@ -242,11 +242,26 @@ else:
 
 ## 📌 4. Evaluation & Analysis
 ### 4.1 Train loss / Validation loss / Precision & Recall / mAP
-- Train loss : train/box_loss (바운딩 박스), train/cls_loss (분류), train/dfl_loss (분포 초점 손실) 모두 epoch가 진행됨에 따라 부드럽게 감소하며 안정적인 값으로 수렴합니다.
-- Validation loss : val/box_loss, val/cls_loss, val/dfl_loss 또한 Train loss와 유사한 추세로 감소하고 있습니다. epoch 후반부에 검증 손실이 다시 증가하는 과적합 현상이 보이지 않는 걸로 미루어 보았을 때 모델이 학습 데이터에만 편향되지 않았음을 유추해볼 수 있습니다.
-- Precision & Recall : metrics/precision(B)와 metrics/recall(B) 모두 학습 초기에 빠르게 상승하여 각각 0.95 이상의 매우 높은 수준에서 안정화되었습니다.
-- mAP : metrics/mAP50(B)는 IoU(Intersection over Union) 임계값을 0.5로 설정했을 때의 평균 정밀도입니다. 약 0.95에 육박하는 매우 높은 수치를 기록했습니다.
-- mAP : metrics/mAP50-95(B)는 IoU 임계값을 0.5부터 0.95까지 0.05 간격으로 변경하며 측정한 mAP의 평균값입니다. 약 0.5 정도에서 수렴했습니다.
+학습 손실(Loss) 및 수렴 안정성 분석:
+학습이 진행된 100 Epoch 동안의 손실 그래프를 분석한 결과, 모델은 매우 안정적인 학습 양상을 보였습니다. 
+Train Loss: box_loss(객체 위치), cls_loss(객체 분류), dfl_loss(분포 초점)의 세 가지 지표 모두 학습 초기(0~10 Epoch)에 급격하게 감소한 후, 이후 완만한 하강 곡선을 그리며 특정 값에 수렴했습니다. 
+이는 모델이 PCB 결함 데이터의 특징을 빠르게 학습했음을 의미합니다. 
+Validation Loss: 검증 데이터셋에 대한 손실값(val/box_loss, val/cls_loss, val/dfl_loss) 역시 Train Loss와 동기화되어 지속적으로 감소했습니다. 특히 학습 후반부(80~100 Epoch)에서도 검증 손실이 다시 증가(튀는 현상)하지 않고 낮게 유지되고 있습니다. 
+이는 딥러닝 모델 학습 시 가장 경계해야 할 '과적합(Overfitting)' 현상이 발생하지 않았음을 강력하게 시사합니다. 즉, 본 모델은 학습 데이터에만 편향되지 않고 새로운 PCB 이미지에 대해서도 일반화된 탐지 성능을 기대할 수 있습니다.
+
+정밀도(Precision) 및 재현율(Recall) 분석:
+Metrics 그래프와 Precision-Recall Curve를 통해 모델의 분류 및 탐지 성능을 구체적으로 확인할 수 있습니다. 
+전반적 추세: metrics/precision(B)과 metrics/recall(B)은 학습 초기에 빠르게 0.8 이상으로 진입했으며, 최종적으로 두 지표 모두 0.9(90%)를 상회하는 높은 구간에서 안정화되었습니다.
+클래스별 성능 (PR Curve 해석): 전체 클래스(all classes)에 대한 mAP@0.5는 0.967로 매우 우수한 성능을 기록했습니다. 
+최상위 성능: missing_hole(0.995), open_circuit(0.991), mouse_bite(0.985)와 같은 결함들은 높은 정확도로 탐지하고 있습니다. 이는 해당 결함들의 시각적 특징이 뚜렷하여 모델이 이를 명확히 구분하고 있음을 보여줍니다. 
+상대적 취약 클래스: spur(0.912)와 spurious_copper(0.942)는 다른 클래스에 비해 상대적으로 낮은 점수를 기록했습니다. 이는 상대적으로 미세한 구리 잔여물이나 돌기(spur)의 형태가 배경이나 다른 패턴과 유사하여 탐지 난이도가 높기 때문으로 해석됩니다. 하지만 이 역시 0.9 이상의 높은 수치이므로 실용적인 탐지에는 문제가 없는 수준입니다.
+
+mAP(mean Average Precision) 및 위치 정확도:
+mAP50(B): IoU(Intersection over Union) 임계값을 0.5로 설정했을 때의 성능인 metrics/mAP50(B)는 최종적으로 약 0.97에 도달했습니다. 이는 예측한 바운딩 박스와 실제 정답 박스가 50% 이상 겹치는 정답을 찾아내는 능력이 탁월함을 의미합니다. mAP50-95(B): IoU 임계값을 0.5부터 0.95까지 엄격하게 적용하여 평균을 낸 metrics/mAP50-95(B)는 약 0.53~0.55 수준으로 수렴했습니다.
+
+F1 Score 및 최적 임계값(Threshold) 선정:
+F1 Score는 정밀도와 재현율의 조화 평균으로, 모델의 균형 잡힌 성능을 보여줍니다. 제공된 F1-Confidence Curve에 따르면, 모든 클래스에 대한 최고 F1 Score는 0.94이며, 이때의 Confidence Threshold(신뢰도 임계값)는 0.311입니다. 이는 실무 적용 시 모델의 신뢰도(Confidence) 기준을 0.311로 설정했을 때, 오탐지(False Positive)와 미탐지(False Negative) 사이에서 가장 이상적인 성능 균형을 맞추고 있습니다.
+
 <img width="1789" height="590" alt="image" src="https://github.com/user-attachments/assets/36efb3f3-d8af-48c0-a9c1-27ec78de6b2f" />
 <img width="950" height="509" alt="image" src="https://github.com/user-attachments/assets/a625413f-0c12-43ee-bd59-7ed53afb098b" />
 <img width="950" height="664" alt="image" src="https://github.com/user-attachments/assets/252b1ae4-bbd7-4ea6-8d05-4d64ec126f43" />
