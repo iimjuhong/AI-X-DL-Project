@@ -235,10 +235,11 @@ Background 클래스에서 가장 주목할 점은 정상 클래스의 예측 �
 *** 
 
 ### 4.3 Test set 최종 평가
-정량 평가: (PR & F1 Curve) 학습에 관여하지 않은 테스트 셋 평가 결과, 모델은 mAP@0.5 기준 0.950을 기록하며 우수한 일반화 성능을 입증했습니다.
+- 정량 평가: (PR & F1 Curve) 학습에 관여하지 않은 테스트 셋 평가 결과, 모델은 mAP@0.5 기준 0.950을 기록하며 우수한 일반화 성능을 입증했습니다.
 F1-Confidence Curve 분석 시, 신뢰도 임계값(Confidence Threshold) 0.353에서 최대 F1 점수 0.95를 달성하여 최적의 동작 지점을 확인했습니다. 
 클래스별로는 open_circuit(0.984)과 missing_hole(0.961)이 가장 높은 성능을 보인 반면, spur(0.911)는 상대적으로 가장 낮은 mAP를 기록했습니다. spur의 PR 곡선이 다른 클래스보다 안쪽으로 쳐지는 형태는 해당 결함 탐지의 난이도가 높음을 시각적으로 보여줍니다. 
-정성 평가: (Confusion Matrix 연계) 성능이 가장 낮은 spur 클래스를 심층 분석한 결과, 
+
+- 정성 평가: (Confusion Matrix 연계) 성능이 가장 낮은 spur 클래스를 심층 분석한 결과, 
 short나 spurious_copper와의 혼동보다는 Background로 잘못 예측(18%)하는 비율이 압도적으로 높았습니다. 이는 spur 결함이 미세하고 비정형적이라 모델이 이를 놓치고 지나가는 경우 (False Negative)가 빈번함을 시사합니다. 따라서 spur와 spurious_copper 간의 유사성보다는, 미세한 spur 객체와 배경을 구분하는 식별력을 강화하는 방향으로 개선이 필요합니다.
 <img width="950" height="664" alt="image" src="https://github.com/user-attachments/assets/c28354c0-ffb9-4c97-9e77-b760f9689249" />
 <img width="950" height="664" alt="image" src="https://github.com/user-attachments/assets/7b7b33f5-0d7b-4d41-8ae5-046685e9ab9e" />
