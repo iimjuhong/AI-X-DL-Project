@@ -111,6 +111,8 @@ split_images_and_labels(resized_img_dir, yolo_labels, output_dir_processed, trai
 - PANet (Path Aggregation Network) 등의 구조(Neck)를 통해 다양한 스케일의 특징을 집계합니다.
 - 최종적으로 헤드에서 바운딩 박스(좌표)와 클래스 확률을 예측합니다.
 
+<img width="968" height="871" alt="image" src="https://github.com/user-attachments/assets/62ffe9f6-c46e-4639-97c4-887e1ae0473f" />
+
 ***
 
 ### 3.3 하이퍼파라미터
@@ -120,15 +122,132 @@ split_images_and_labels(resized_img_dir, yolo_labels, output_dir_processed, trai
 - optimizer: Adam
 - image_size: 640
 
+```python
+classes = ['missing_hole', 'mouse_bite', 'open_circuit',
+           'short', 'spur', 'spurious_copper']
+
+# test 셋을 명시적으로 제외한 data.yaml 내용
+all_data_yaml_content = f"""
+path: {output_dir.as_posix()}
+train: images/train
+val: images/val
+names:
+    0: {classes[0]}
+    1: {classes[1]}
+    2: {classes[2]}
+    3: {classes[3]}
+    4: {classes[4]}
+    5: {classes[5]}
+"""
+
+data_path = project_root / 'data.yaml'
+with open(data_path, 'w') as f:
+    f.write(all_data_yaml_content)
+```
+
 ***
 
 ### 3.4 학습 프로세스
 모델은 train 및 validation 데이터셋을 사용하여 학습하였습니다. 학습은 사전 훈련된(pre-trained) 가중치를 기반으로 전이 학습(Transfer Learning)을 수행하여, 적은 데이터로도 PCB 결함이라는 특정 도메인에 대한 높은 탐지 성능을 높였습니다. 학습 과정 동안 매 에포크(epoch)마다 validation 세트에 대한 성능(예: mAP@0.5)이 측정되었으며, 제공된 노트북에서는 이 측정값 중 가장 높은 성능을 기록한 시점의 모델 가중치가 적용된 best.pt 파일을 최종 모델로 선정하였습니다.
 
+```python
+model_name = 'yolo11s.pt'
+batch = 16
+epochs = 100
+imgsz = 640
+lr0 = 0.001
+lrf = 0.0001
+optimizer = 'Adam'
+
+run_name = 'yolo11s_train_val_only'
+
+model = YOLO(model_name)
+try:
+    model.train(
+        data=str(data_path),
+        epochs=epochs,
+        batch=batch,
+        lr0=lr0,
+        lrf=lrf,
+        imgsz=imgsz,
+        optimizer=optimizer,
+        project=str(results_base_dir_colab),
+        name=run_name,
+        exist_ok=True,
+        hsv_h=0.0,
+        hsv_s=0.0,
+        hsv_v=0.0,
+        degrees=10.0,
+        fliplr=0.0,
+        mixup=0.3,
+
+    )
+
+    # 학습 결과를 Drive로 복사
+    results_dir_colab = results_base_dir_colab / run_name
+    dest_final_run_dir = dest_results_dir_drive / run_name
+    shutil.copytree(results_dir_colab, dest_final_run_dir, dirs_exist_ok=True)
+    print(f" 학습 결과가 Drive로 복사되었습니다: {dest_final_run_dir}")
+
+except Exception as e:
+    print(f" 모델 학습 중 오류 발생: {e}")
+```
 ***
 
 ### 3.5 모델 성능 평가 (테스트)
 로드된 모델의 predict() 또는 val() 메소드를 test 데이터셋에 대해 실행하였습니다. 이 과정에서 모델은 test 이미지를 입력받아 결함을 예측하고, 이 예측 결과(바운딩 박스, 클래스, 신뢰도 점수)를 실제 정답 라벨과 비교합니다. 평가가 완료되면, 객체 탐지 모델의 표준 성능 지표인 mAP가 산출됩니다. 구체적으로, IoU(Intersection over Union) 임계값에 따른 mAP@0.5 (느슨한 기준) 및 mAP@0.5:0.95 (엄격한 기준) 값을 통해 모델의 정확도를 정량적으로 평가합니다. 이와 더불어 정밀도(Precision)와 재현율(Recall)을 확인하여, 모델이 결함을 놓치지 않고(높은 재현율) 정확하게 예측하는지(높은 정밀도)를 종합적으로 분석하였습니다.
+
+```python
+# 테스트 이미지 파일 목록 가져오기
+try:
+    if not symlink_images_dir.exists():
+         raise FileNotFoundError(f"테스트 이미지 심볼릭 링크 디렉토리를 찾을 수 없습니다: {symlink_images_dir.as_posix()}")
+
+    image_files = list(symlink_images_dir.glob('*.jpg')) # 이미지 파일 확장자에 맞게 수정
+    if not image_files:
+        print("경고: 테스트 이미지 디렉토리에 파일이 없습니다.")
+    else:
+        print(f"테스트 이미지 파일 {len(image_files)}개 찾음.")
+
+except FileNotFoundError as e:
+    print(f"테스트 이미지 디렉토리 오류: {e}")
+    image_files = [] # 파일 목록이 없으면 빈 리스트로 설정
+except Exception as e:
+    print(f"테스트 이미지 파일 목록 가져오는 중 오류 발생: {e}")
+    image_files = []
+
+
+# 몇 개의 이미지에 대해 추론 수행 및 결과 시각화
+if image_files:
+    # 무작위로 몇 개의 이미지 선택 (예: 5개)
+    num_images_to_infer = min(5, len(image_files))
+    selected_images = random.sample(image_files, num_images_to_infer)
+
+    print(f"\n===== 선택된 {num_images_to_infer}개 이미지에 대해 추론 수행 =====")
+    for img_path in selected_images:
+        print(f"Processing image: {img_path.name}")
+        try:
+            # 모델 추론 수행
+            results = model(str(img_path)) # Path 객체를 문자열로 변환하여 전달
+
+            # 결과 시각화 (ultralytics가 제공하는 plot 기능 사용)
+            # results는 Results 객체의 리스트입니다. 각 객체는 하나의 이미지 결과입니다.
+            for r in results:
+                im_array = r.plot()  # BGR numpy array with detections
+                im_rgb = cv2.cvtColor(im_array, cv2.COLOR_BGR2RGB) # RGB로 변환
+
+                plt.figure(figsize=(12, 8))
+                plt.imshow(im_rgb)
+                plt.title(f"Detection on {img_path.name}")
+                plt.axis('off')
+                plt.show()
+
+        except Exception as e:
+            print(f"이미지 {img_path.name} 추론/시각화 중 오류 발생: {e}")
+
+else:
+    print("추론을 수행할 테스트 이미지가 없습니다.")
+```
 
 ***
 
