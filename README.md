@@ -52,11 +52,55 @@ YOLO 모델의 학습 및 구현을 넘어, 실제 산업 현장에서의 적용
 ## 📌 3. Methodology
 PCB 결함은 제품의 신뢰도와 직결되므로 신속하고 정확한 검출이 필수적이다. 따라서, 실시간성과 높은 정확도를 강점으로 하는 YOLO(You Only Look Once) 아키텍처를 핵심 방법론으로 튜닝하는 방식을 채택하였습니다.
 ### 3.1 데이터셋 분할
-전체 데이터셋은 총 757개의 이미지와 4,662개의 결함 라벨을 포함한다. 모델의 학습, 검증, 평가를 위해 데이터셋은 임의로 다음과 같은 비율로 분리하였습니다.
-- 학습(Train) 세트: 550개 이미지 (3,393개 라벨)
-- 검증(Validation) 세트: 138개 이미지 (846개 라벨)
-- 테스트(Test) 세트: 69개 이미지 (423개 라벨)
+전체 데이터셋은 총 1386개의 이미지와 6가지의 결함 라벨을 포함한다. 모델의 학습, 검증, 평가를 위해 데이터셋은 임의로 8:1:1 비율로 분리하였습니다.
+- 학습(Train) 세트: 1108개 이미지 
+- 검증(Validation) 세트: 138개 이미지
+- 테스트(Test) 세트: 138개 이미지
 분할 구조를 통해 모델이 충분한 양의 데이터로 학습하고, 학습 과정에서 과적합(overfitting)을 모니터링하며, 최종적으로 학습에 사용되지 않은 데이터를 통해 일반화 성능을 객관적으로 평가할 수 있도록 설계하였습니다.
+
+```python
+def split_images_and_labels(images_dir, labels, output_dir, train_split=0.8, val_split=0.1):
+    """YOLO 포맷으로 변환된 라벨과 이미지를 train/val/test 세트로 분할"""
+    os.makedirs(output_dir / 'images' / 'train', exist_ok=True)
+    os.makedirs(output_dir / 'images' / 'val', exist_ok=True)
+    os.makedirs(output_dir / 'images' / 'test', exist_ok=True)
+    os.makedirs(output_dir / 'labels' / 'train', exist_ok=True)
+    os.makedirs(output_dir / 'labels' / 'val', exist_ok=True)
+    os.makedirs(output_dir / 'labels' / 'test', exist_ok=True)
+
+    image_labels = {}
+    for label in labels:
+        filename = label[0]
+        if filename not in image_labels:
+            image_labels[filename] = []
+        image_labels[filename].append(label)
+
+    image_filenames = list(image_labels.keys())
+    random.shuffle(image_filenames)
+
+    num_images = len(image_filenames)
+    num_train = int(num_images * train_split)
+    num_val = int(num_images * val_split)
+
+    train_filenames = image_filenames[:num_train]
+    val_filenames = image_filenames[num_train:num_train + num_val]
+    test_filenames = image_filenames[num_train + num_val:]
+
+    for dataset, filenames in [(Path('train'), train_filenames), (Path('val'), val_filenames), (Path('test'), test_filenames)]:
+        for filename in filenames:
+            labels = image_labels[filename]
+            with open(output_dir / 'labels' / dataset / f'{Path(filename).stem}.txt', 'w') as label_file:
+                for label in labels:
+                    _, class_index, x_center, y_center, bbox_width, bbox_height = label
+                    label_file.write(f"{class_index} {x_center} {y_center} {bbox_width} {bbox_height}\n")
+            shutil.copy(images_dir / filename, output_dir / 'images' / dataset / filename)
+
+classes = ['missing_hole', 'mouse_bite', 'open_circuit', 'short', 'spur', 'spurious_copper']
+yolo_labels = convert_to_yolo_labels(annot_df_resized, classes)
+output_dir_processed = project_root / 'data_processed'
+split_images_and_labels(resized_img_dir, yolo_labels, output_dir_processed, train_split=0.8, val_split=0.1)
+```
+
 
 ***
 
