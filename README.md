@@ -119,7 +119,7 @@ for split, filenames in splits.items():
 ***
 
 ### 3.4 학습 프로세스
-모델은 train 및 validation 데이터셋을 사용하여 학습하였습니다. 학습은 사전 훈련된(pre-trained) 가중치를 기반으로 전이 학습(Transfer Learning)을 수행하여, 적은 데이터로도 PCB 결함이라는 특정 도메인에 대한 높은 탐지 성능을 높였습니다. 학습 과정 동안 매 에포크(epoch)마다 validation 세트에 대한 성능(예: mAP@0.5)이 측정되었으며, 제공된 노트북에서는 이 측정값 중 가장 높은 성능을 기록한 시점의 모델 가중치가 적용된 best.pt 파일을 최종 모델로 선정하였습니다.
+이 학습 과정은 사전 훈련된(pre-trained) 가중치를 가진 yolo11s.pt 모델, 즉 YOLOv8-S (Small) 모델의 경량화 버전을 기반으로 시작하는 전이 학습(Transfer Learning) 전략을 채택했습니다. 이는 대규모 데이터셋(ImageNet, COCO)을 통해 이미 일반적인 시각적 특징을 학습한 모델을 가져와, 적은 양의 PCB 결함 데이터만으로도 해당 특정 도메인에 빠르게 적응시키고 높은 탐지 성능을 확보하기 위함입니다.
 
 ```python
 results_base_dir_colab = Path('/content/pcb_results')
@@ -157,71 +157,41 @@ except Exception as e:
 ```
 ***
 
-### 3.5 모델 성능 평가 (테스트)
-로드된 모델의 predict() 또는 val() 메소드를 test 데이터셋에 대해 실행하였습니다. 이 과정에서 모델은 test 이미지를 입력받아 결함을 예측하고, 이 예측 결과(바운딩 박스, 클래스, 신뢰도 점수)를 실제 정답 라벨과 비교합니다. 평가가 완료되면, 객체 탐지 모델의 표준 성능 지표인 mAP가 산출됩니다. 구체적으로, IoU(Intersection over Union) 임계값에 따른 mAP@0.5 (느슨한 기준) 및 mAP@0.5:0.95 (엄격한 기준) 값을 통해 모델의 정확도를 정량적으로 평가합니다. 이와 더불어 정밀도(Precision)와 재현율(Recall)을 확인하여, 모델이 결함을 놓치지 않고(높은 재현율) 정확하게 예측하는지(높은 정밀도)를 종합적으로 분석하였습니다.
+### 3.5 모델 성능 평가 (검증)
+학습 과정에서 validation 세트를 사용하여 성능을 측정하고 최적 모델을 선정하는 절차는 전이 학습의 효과를 극대화하고, 모델의 일반화 능력을 보장하는 데 필수적입니다. 각 에포크가 끝날 때마다 모델은 가중치 업데이트를 멈추고 val 데이터셋을 사용하여 현재 가중치의 성능을 측정합니다. model.train() 함수 호출을 통해 100 에포크 동안 data.yaml의 val 경로에 지정된 데이터셋을 사용하여 자동으로 훈련과 검증을 반복하도록 설정하였습니다. 이 검증 과정은 다음과 같은 역할을 수행합니다.
+- 과적합 방지: 모델이 훈련 데이터에만 너무 잘 맞추어지는 현상(과적합)이 발생하는지 실시간으로 확인합니다.
+- 최적 모델 선정: 측정된 validation 성능이 이전 에포크보다 높을 경우, 해당 시점의 모델 가중치(weights)를 best.pt 파일로 저장합니다.
+- 학습 종료: 100 에포크가 모두 끝난 후, 최종적으로 best.pt는 전체 학습 과정 중 validation 세트에서 가장 좋은 성능을 낸 모델이 됩니다.
+
+***
+
+### 3.6 최종 모델 성능 평가 (테스트)
+로드된 모델의 val() 메소드를 test 데이터셋에 대해 실행하였습니다. 이 과정에서 모델은 test 이미지를 입력받아 결함을 예측하고, 이 예측 결과(바운딩 박스, 클래스, 신뢰도 점수)를 실제 정답 라벨과 비교합니다. 평가가 완료되면, 객체 탐지 모델의 표준 성능 지표인 mAP가 산출됩니다. 구체적으로, IoU(Intersection over Union) 임계값에 따른 mAP@0.5 (느슨한 기준) 및 mAP@0.5:0.95 (엄격한 기준) 값을 통해 모델의 정확도를 정량적으로 평가합니다. 이와 더불어 정밀도(Precision)와 재현율(Recall)을 확인하여, 모델이 결함을 놓치지 않고(높은 재현율) 정확하게 예측하는지(높은 정밀도)를 종합적으로 분석하였습니다. 또한 모델의 오분류 경향을 클래스별로 한눈에 보여주는 Confusion Matrix까지 불러옵니다.
 
 ```python
-# 테스트 이미지 파일 목록 가져오기
-try:
-    if not symlink_images_dir.exists():
-         raise FileNotFoundError(f"테스트 이미지 심볼릭 링크 디렉토리를 찾을 수 없습니다: {symlink_images_dir.as_posix()}")
+metrics = model.val(data=str(yaml_file_path), split='test', plots=True)
+save_dir = Path(metrics.save_dir)
 
-    image_files = list(symlink_images_dir.glob('*.jpg')) # 이미지 파일 확장자에 맞게 수정
-    if not image_files:
-        print("경고: 테스트 이미지 디렉토리에 파일이 없습니다.")
-    else:
-        print(f"테스트 이미지 파일 {len(image_files)}개 찾음.")
-
-except FileNotFoundError as e:
-    print(f"테스트 이미지 디렉토리 오류: {e}")
-    image_files = [] # 파일 목록이 없으면 빈 리스트로 설정
-except Exception as e:
-    print(f"테스트 이미지 파일 목록 가져오는 중 오류 발생: {e}")
-    image_files = []
-
-
-# 몇 개의 이미지에 대해 추론 수행 및 결과 시각화
-if image_files:
-    # 무작위로 몇 개의 이미지 선택 (예: 5개)
-    num_images_to_infer = min(5, len(image_files))
-    selected_images = random.sample(image_files, num_images_to_infer)
-
-    print(f"\n===== 선택된 {num_images_to_infer}개 이미지에 대해 추론 수행 =====")
-    for img_path in selected_images:
-        print(f"Processing image: {img_path.name}")
-        try:
-            # 모델 추론 수행
-            results = model(str(img_path)) # Path 객체를 문자열로 변환하여 전달
-
-            # 결과 시각화 (ultralytics가 제공하는 plot 기능 사용)
-            # results는 Results 객체의 리스트입니다. 각 객체는 하나의 이미지 결과입니다.
-            for r in results:
-                im_array = r.plot()  # BGR numpy array with detections
-                im_rgb = cv2.cvtColor(im_array, cv2.COLOR_BGR2RGB) # RGB로 변환
-
-                plt.figure(figsize=(12, 8))
-                plt.imshow(im_rgb)
-                plt.title(f"Detection on {img_path.name}")
-                plt.axis('off')
-                plt.show()
-
-        except Exception as e:
-            print(f"이미지 {img_path.name} 추론/시각화 중 오류 발생: {e}")
-
-else:
-    print("추론을 수행할 테스트 이미지가 없습니다.")
+def show_result_image(img_path, title):
+        if img_path.exists():
+            img = mpimg.imread(str(img_path))
+            plt.figure(figsize=(12, 10))
+            plt.imshow(img)
+            plt.title(title, fontsize=15)
+            plt.axis('off')
+            plt.show()
+        else:
+            print(f" 이미지를 찾을 수 없습니다: {img_path}")
 ```
 
 ***
 
-### 3.6 시각화 및 디버깅
-- 학습 곡선: 학습 과정 중 results.csv 파일이 생성되며, 이를 matplotlib 등으로 시각화하여 에포크별 학습 손실(train loss), 검증 손실(val loss), mAP, 정밀도, 재현율 등의 변화를 추적합니다.
-- 결과 시각화: predict() 실행 시, 원본 이미지에 예측된 바운딩 박스와 신뢰도 점수가 그려진 결과 이미지가 저장되어 직관적인 성능 확인이 가능합니다.
-- 성능 지표 플롯: Confusion Matrix(혼동 행렬), P-R Curve(정밀도-재현율 곡선) 등이 자동으로 생성되어 모델의 세부 성능을 분석합니다.
+### 3.7 시각화 및 디버깅
+결과 폴더안에 저장된 모든 이미지들을 찾아 하나씩 시각화를 진행하였습니다.
+
 
 ***
 
-### 3.7 구현 및 실행
 
 
 ## 📌 4. Evaluation & Analysis
