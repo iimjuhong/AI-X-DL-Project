@@ -193,7 +193,7 @@ def show_result_image(img_path, title):
 Train Loss: box_loss(객체 위치), cls_loss(객체 분류), dfl_loss(분포 초점)의 세 가지 지표 모두 학습 초기(0~10 Epoch)에 급격하게 감소한 후, 이후 완만한 하강 곡선을 그리며 특정 값에 수렴했습니다. 
 이는 모델이 PCB 결함 데이터의 특징을 빠르게 학습했음을 의미합니다. 
 
-Validation Loss: 검증 데이터셋에 대한 손실값(val/box_loss, val/cls_loss, val/dfl_loss) 역시 Train Loss와 동기화되어 지속적으로 감소했습니다. 특히 학습 후반부(80~100 Epoch)에서도 검증 손실이 다시 증가(튀는 현상)하지 않고 낮게 유지되고 있습니다. 
+- Validation Loss: 검증 데이터셋에 대한 손실값(val/box_loss, val/cls_loss, val/dfl_loss) 역시 Train Loss와 동기화되어 지속적으로 감소했습니다. 특히 학습 후반부(80~100 Epoch)에서도 검증 손실이 다시 증가(튀는 현상)하지 않고 낮게 유지되고 있습니다. 
 이는 딥러닝 모델 학습 시 가장 경계해야 할 '과적합(Overfitting)' 현상이 발생하지 않았음을 강력하게 시사합니다. 즉, 본 모델은 학습 데이터에만 편향되지 않고 새로운 PCB 이미지에 대해서도 일반화된 탐지 성능을 기대할 수 있습니다.
 
 - 정밀도(Precision) 및 재현율(Recall) 분석:
