@@ -247,8 +247,13 @@ else:
 - Precision & Recall : metrics/precision(B)와 metrics/recall(B) 모두 학습 초기에 빠르게 상승하여 각각 0.95 이상의 매우 높은 수준에서 안정화되었습니다.
 - mAP : metrics/mAP50(B)는 IoU(Intersection over Union) 임계값을 0.5로 설정했을 때의 평균 정밀도입니다. 약 0.95에 육박하는 매우 높은 수치를 기록했습니다.
 - mAP : metrics/mAP50-95(B)는 IoU 임계값을 0.5부터 0.95까지 0.05 간격으로 변경하며 측정한 mAP의 평균값입니다. 약 0.5 정도에서 수렴했습니다.
-<img width="2400" height="1200" alt="KakaoTalk_20251107_225911826_07" src="https://github.com/user-attachments/assets/144fa164-a2f5-473a-95f1-8a8647c1f647" />
-
+<img width="1789" height="590" alt="image" src="https://github.com/user-attachments/assets/36efb3f3-d8af-48c0-a9c1-27ec78de6b2f" />
+<img width="950" height="509" alt="image" src="https://github.com/user-attachments/assets/a625413f-0c12-43ee-bd59-7ed53afb098b" />
+<img width="950" height="664" alt="image" src="https://github.com/user-attachments/assets/252b1ae4-bbd7-4ea6-8d05-4d64ec126f43" />
+<img width="950" height="664" alt="image" src="https://github.com/user-attachments/assets/e226d509-19d6-416f-ae3b-96b391a8a785" />
+<img width="1175" height="1199" alt="image" src="https://github.com/user-attachments/assets/ea84b578-3011-4e0b-9350-65ff27ad7d83" />
+<img width="1175" height="1199" alt="image" src="https://github.com/user-attachments/assets/68cfa1b6-9332-4c14-bd23-537f025163cb" />
+<img width="1175" height="1199" alt="image" src="https://github.com/user-attachments/assets/f16b8011-8121-4af8-84f5-3462fba00dc3" />
 
 ***
 
@@ -261,8 +266,7 @@ else:
 - background : 0%
 주목할 만한 점은 background 클래스를 예측을 못한다는 것인데, 팀원끼리 논의 결과 학습 데이터의 어노테이션 방식에 근본적인 원인이 있는 것으로 판단하였습니다.
 바운딩 박스 방식은 모델에게 사각형 내부의 모든 픽셀 정보는 이 클래스에 속한다라고 학습시킨다는 원리입니다. 이로 인해, 비정형적이거나 크기가 작은 결함의 바운딩 박스 내부에 포함된 대다수의 정상 픽셀이 실제 결함의 특징으로 함께 학습되기에 오류가 크게 나는 것 같습니다.
-<img width="3000" height="2250" alt="KakaoTalk_20251107_225911826_04" src="https://github.com/user-attachments/assets/c79a6e1d-7162-4dd8-88bc-5dada2d9ebb3" />
-
+<img width="950" height="741" alt="image" src="https://github.com/user-attachments/assets/9a0a1cf0-e78f-408b-88a2-38df259992b7" />
 *** 
 
 ### 4.3 Test set 최종 평가
@@ -275,10 +279,10 @@ else:
 
 - PR Curve 분석
 : Precision-Recall 곡선(PR Curve) 분석 결과 spur 결함의 곡선이 다른 클래스(예: missing_hole)의 곡선보다 확연히 아래쪽에 위치하였습니다. 이는 spur 결함을 더 많이 찾으려고 할수록(재현율을 높이려 할수록), 관련 없는 것을 spur로 잘못 예측하는(정밀도가 급격히 하락하는) 경향이 다른 결함보다 크다는 것을 의미하며, 성능 표의 spur 결함에 대한 낮은 mAP 수치를 뒷받침합니다.
-<img width="691" height="528" alt="469852e4-9ecb-42ad-a2e6-87ed9d45bbbf" src="https://github.com/user-attachments/assets/fe0a643d-e814-4d5f-b7e1-427395dcb9ef" />
-<img width="1189" height="690" alt="0c622085-535e-454e-b205-a51a97ec4c9d" src="https://github.com/user-attachments/assets/7b6733ec-6624-4784-baae-3748f0158e60" />
-<img width="1109" height="989" alt="image" src="https://github.com/user-attachments/assets/9b246606-4938-4f74-99ea-e2ec903c0c07" />
-<img width="1189" height="690" alt="81e3fb1e-216d-4492-8955-1bde89ba67ae" src="https://github.com/user-attachments/assets/5341a4d6-c342-4c35-b2e1-c4d8873786cf" />
+<img width="950" height="664" alt="image" src="https://github.com/user-attachments/assets/c28354c0-ffb9-4c97-9e77-b760f9689249" />
+<img width="950" height="664" alt="image" src="https://github.com/user-attachments/assets/7b7b33f5-0d7b-4d41-8ae5-046685e9ab9e" />
+<img width="950" height="741" alt="image" src="https://github.com/user-attachments/assets/36a632d0-c11d-42db-a284-b954f034b641" />
+
 
 ## 📌 5. Related Works
 * J. Yosinski, J. Clune, Y. Bengio, and H. Lipson, "How transferable are features in deep neural networks?," in Advances in Neural Information Processing Systems (NIPS), 2014.
