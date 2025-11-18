@@ -190,7 +190,8 @@ def show_result_image(img_path, title):
 ### 4.1 Train loss / Validation loss / Precision & Recall / mAP
 - 학습 손실(Loss) 및 수렴 안정성 분석:
 학습이 진행된 100 Epoch 동안의 손실 그래프를 분석한 결과, 모델은 매우 안정적인 학습 양상을 보였습니다. 
-Train Loss: box_loss(객체 위치), cls_loss(객체 분류), dfl_loss(분포 초점)의 세 가지 지표 모두 학습 초기(0~10 Epoch)에 급격하게 감소한 후, 이후 완만한 하강 곡선을 그리며 특정 값에 수렴했습니다. 
+
+- Train Loss: box_loss(객체 위치), cls_loss(객체 분류), dfl_loss(분포 초점)의 세 가지 지표 모두 학습 초기(0~10 Epoch)에 급격하게 감소한 후, 이후 완만한 하강 곡선을 그리며 특정 값에 수렴했습니다. 
 이는 모델이 PCB 결함 데이터의 특징을 빠르게 학습했음을 의미합니다. 
 
 - Validation Loss: 검증 데이터셋에 대한 손실값(val/box_loss, val/cls_loss, val/dfl_loss) 역시 Train Loss와 동기화되어 지속적으로 감소했습니다. 특히 학습 후반부(80~100 Epoch)에서도 검증 손실이 다시 증가(튀는 현상)하지 않고 낮게 유지되고 있습니다. 
