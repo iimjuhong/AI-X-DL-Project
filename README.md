@@ -95,42 +95,26 @@ for split, filenames in splits.items():
 ### 3.2 모델 아키텍처 정의
 본 프로젝트는 ultralytics 라이브러리에서 제공하는 YOLO v11 모델 아키텍처의 'small' (s) 버전을 기반으로 한 커스텀 모델로, 속도와 정확도 간의 균형이 뛰어나 실제 산업 현장의 실시간 검사 시스템에 적용하기에 적합하다고 판단하여 선정하였습니다.
 - YOLO v11s는 경량화된(small) 버전으로, 백본(Backbone)과 넥(Neck), 헤드(Head)로 구성됩니다.
-- CNN과 유사하게, 이미지의 특징(feature)을 추출하는 Convolutional 레이어들이 백본을 이룹니다.
-- PANet (Path Aggregation Network) 등의 구조(Neck)를 통해 다양한 feature map들을 가진 이미지들의 특징을 집계합니다.
-- 최종적으로 헤드에서 바운딩 박스(좌표)와 클래스 확률을 예측합니다.
+- Backbone(특징 추출 역할) : 입력 이미지를 받아 다양한 수준의 특징 맵(feature map)을 만듭니다. 저수준(모서리, 질감) 특징부터 고수준(형태, 의미) 특징까지 추출합니다.
+- Neck(특징 융합) : Backbone에서 나온 서로 다른 크기의 특징 맵들을 결합하여 객체 탐지에 더 유용한 특징을 만듭니다.
+- Head(검출) : Neck에서 전달받은 3가지 스케일의 특징 맵을 입력받아 실제 객체 탐지를 수행
+- Backbone에서 특징 추출하고 Neck에서 이 특징들을 효율적으로 섞어준 뒤, Head에서 3가지 다른 크기의 특징 맵을 보고 다양한 크기의 객체를 최종적으로 탐지하는 구조입니다.
 
 <img width="1581" height="1505" alt="image" src="https://github.com/user-attachments/assets/69e7166b-3b36-4b2b-b9a4-3f841a5b0015" />
 
 ***
 
 ### 3.3 하이퍼파라미터
-- batch_size: 16
+- batch_size: 16 
 - learning_rate: 0.001
 - epochs: 100
 - optimizer: Adam
 - image_size: 640
-
-```python
-model = YOLO('yolo11s.pt')
-
-try:
-    results = model.train(
-        data=str(yaml_path),
-        epochs=100,
-        batch=16,
-        imgsz=640,
-        project=str(results_base_dir_colab),
-        name='yolo11s_run',
-        optimizer='Adam'
-        exist_ok=True,
-        hsv_h=0.015  # Hue (색조): -0.015~0.015 범위로 변화
-        hsv_s=0.7    # Saturation (채도): -0.7~0.7 범위로 변화  
-        hsv_v=0.4    # Value (명도): -0.4~0.4 범위로 변화
-        degrees=10.0,
-        fliplr=0.0,
-        mixup=0.3
-    )
-```
+- hsv_h : 0.015
+- hsv_s : 0.7
+- hsv_v : 0.4
+- degrees : 10
+- mixup : 0.3
 
 ***
 
