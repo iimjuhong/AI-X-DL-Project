@@ -226,21 +226,19 @@ F1 Score는 정밀도와 재현율의 조화 평균으로, 모델의 균형 잡�
 - spur : 85%
 - mouse_bite / open_circuit : 81%
 - background : 0%
-주목할 만한 점은 background 클래스를 예측을 못한다는 것인데, 팀원끼리 논의 결과 학습 데이터의 어노테이션 방식에 근본적인 원인이 있는 것으로 판단하였습니다.
-바운딩 박스 방식은 모델에게 사각형 내부의 모든 픽셀 정보는 이 클래스에 속한다라고 학습시킨다는 원리입니다. 이로 인해, 비정형적이거나 크기가 작은 결함의 바운딩 박스 내부에 포함된 대다수의 정상 픽셀이 실제 결함의 특징으로 함께 학습되기에 오류가 크게 나는 것 같습니다.
+클래스별 예측 성능 혼동 행렬 분석 결과,
+missing_hole은 1.00(100%)의 완벽한 분류 성능을 보였으며, open_circuit과 short는 0.96, mouse_bite와 spurious_copper는 0.94로 대부분의 클래스에서 매우 높은 정답률을 기록했습니다.
+다만 spur의 경우 0.82로, 실제 결함 중 약 18%를 background으로 잘못 예측하는 False Negative가 발생하여 상대적으로 가장 낮은 성능을 보였습니다.
+Background 클래스에서 가장 주목할 점은 정상 클래스의 예측 성공률이 0% 라는 것입니다. 행렬 우측 열을 보면, 모델이 정상 배경을 mouse_bite(0.25), spur(0.25) 등의 결함으로 잘못 예측하는 False Positive 현상이 뚜렷합니다. 이는 바운딩 박스(Bounding Box) 어노테이션의 구조적 한계에 기인한 것으로 판단됩니다. 직사각형 박스는 결함뿐만 아니라 주변의 정상 회로 픽셀까지 포함하게 됩니다. 이로 인해 모델이 박스 내부의 정상 패턴까지 결함의 특징으로 학습하게 되어, 실제 정상 이미지에서 유사한 복잡한 패턴이 나타날 때 이를 결함으로 오인하는 오류를 범하고 있습니다.
 <img width="950" height="741" alt="image" src="https://github.com/user-attachments/assets/9a0a1cf0-e78f-408b-88a2-38df259992b7" />
 *** 
 
 ### 4.3 Test set 최종 평가
-학습 및 검증 과정에 사용되지 않은 별도의 테스트 셋(Test Set)으로 모델의 최종 성능을 평가하였습니다.
-- 정량 평가 (성능 표)
-: 학습에 사용되지 않은 테스트 셋을 이용한 최종 평가에서, 모델은 전체 All 클래스 기준 정밀도(P) 0.967, 재현율(R) 0.939, mAP@0.5 0.973을 기록하며 전반적으로 높은 수준의 탐지 성능을 입증했습니다. 그러나 mAP@0.5:0.95는 0.520으로, 학습 과정에서 관찰된 '정밀한 위치 예측의 한계'가 테스트 셋에서도 동일하게 재현됨을 확인하였습니다. 클래스별 상세 분석을 통해, missing_hole(0.592)과 같이 형태가 명확한 결함 유형은 높은 mAP를 달성한 반면, spur(0.445) 결함은 가장 저조한 mAP@0.5:0.95 점수를 기록한 것을 확인했습니다. 이는 모델이 비정형적이고 미세한 spur 결함을 정밀하게 예측하는 데 가장 어려움을 겪고 있음을 의미합니다.
-
-- 정성 평가 (Confusion Matrix)
-: Confusion Matrix(혼동 행렬) 분석 결과, 대부분의 결함은 대각선(True Positive)에 밀집되어 모델이 클래스 분류를 정확히 수행했음을 보여주었습니다. 하지만 일부 spur 결함이 short 또는 spurious_copper로 오분류되는 사례가 관찰되었습니다. 이는 spur와 spurious_copper가 모두 '불필요한 구리 조각'이라는 시각적 유사성을 공유하기 때문에 모델이 혼동을 일으킨 것으로 분석됩니다.
-
-- PR Curve 분석
-: Precision-Recall 곡선(PR Curve) 분석 결과 spur 결함의 곡선이 다른 클래스(예: missing_hole)의 곡선보다 확연히 아래쪽에 위치하였습니다. 이는 spur 결함을 더 많이 찾으려고 할수록(재현율을 높이려 할수록), 관련 없는 것을 spur로 잘못 예측하는(정밀도가 급격히 하락하는) 경향이 다른 결함보다 크다는 것을 의미하며, 성능 표의 spur 결함에 대한 낮은 mAP 수치를 뒷받침합니다.
+정량 평가: (PR & F1 Curve) 학습에 관여하지 않은 테스트 셋 평가 결과, 모델은 mAP@0.5 기준 0.950을 기록하며 우수한 일반화 성능을 입증했습니다.
+F1-Confidence Curve 분석 시, 신뢰도 임계값(Confidence Threshold) 0.353에서 최대 F1 점수 0.95를 달성하여 최적의 동작 지점을 확인했습니다. 
+클래스별로는 open_circuit(0.984)과 missing_hole(0.961)이 가장 높은 성능을 보인 반면, spur(0.911)는 상대적으로 가장 낮은 mAP를 기록했습니다. spur의 PR 곡선이 다른 클래스보다 안쪽으로 쳐지는 형태는 해당 결함 탐지의 난이도가 높음을 시각적으로 보여줍니다. 
+정성 평가: (Confusion Matrix 연계) 성능이 가장 낮은 spur 클래스를 심층 분석한 결과, 
+short나 spurious_copper와의 혼동보다는 Background로 잘못 예측(18%)하는 비율이 압도적으로 높았습니다. 이는 spur 결함이 미세하고 비정형적이라 모델이 이를 놓치고 지나가는 경우 (False Negative)가 빈번함을 시사합니다. 따라서 spur와 spurious_copper 간의 유사성보다는, 미세한 spur 객체와 배경을 구분하는 식별력을 강화하는 방향으로 개선이 필요합니다.
 <img width="950" height="664" alt="image" src="https://github.com/user-attachments/assets/c28354c0-ffb9-4c97-9e77-b760f9689249" />
 <img width="950" height="664" alt="image" src="https://github.com/user-attachments/assets/7b7b33f5-0d7b-4d41-8ae5-046685e9ab9e" />
 <img width="950" height="741" alt="image" src="https://github.com/user-attachments/assets/36a632d0-c11d-42db-a284-b954f034b641" />
