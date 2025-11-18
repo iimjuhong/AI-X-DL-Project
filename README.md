@@ -186,14 +186,6 @@ def show_result_image(img_path, title):
 
 ***
 
-### 3.7 시각화 및 디버깅
-결과 폴더안에 저장된 모든 이미지들을 찾아 하나씩 시각화를 진행하였습니다.
-
-
-***
-
-
-
 ## 📌 4. Evaluation & Analysis
 ### 4.1 Train loss / Validation loss / Precision & Recall / mAP
 학습 손실(Loss) 및 수렴 안정성 분석:
