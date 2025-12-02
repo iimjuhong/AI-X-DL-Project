@@ -4,7 +4,7 @@
 - 정명재 융합전자공학 qwertymike@hanyang.ac.kr
 
 ### Link  
--웹 링크 : https://qwertymike-pcb-defect-detection.hf.space
+- 웹 링크 : https://qwertymike-pcb-defect-detection.hf.space
 
 ### Table of contents
 * [Proposal (Option1)]
