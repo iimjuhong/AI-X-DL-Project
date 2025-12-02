@@ -3,6 +3,14 @@
 - 임주홍 전기공학 juehong9253@gmail.com
 - 정명재 융합전자공학 qwertymike@hanyang.ac.kr
 
+### Table of contents
+1. [Proposal](#1.-Proposal)
+2. [Datasets](#2.-Datasets)
+3. [Methodology](#3.-Methodology)
+4. [Evaluation & Analysis](#4.-Evaluation-&-Analysis)
+5. [Related works](#5.-Related-Works)
+6. [Conclusion](#6.-Conclusion)
+
 ## 📌 1. Proposal (Option1)
 ### 1.1 배경 및 동기
 PCB(인쇄회로기판)은 현대 전자제품 제조 공정에 많이 쓰이는 회로입니다. 산업 현장에서는 머신러닝 패턴 인식을 활용한 자동 광학 검사를 주로 사용해 왔습니다. 하지만, 기존 머신러닝 기반 자동광학검사(AOI)는 spur와 같은 비정형 결함 탐지에 명확한 한계를 가지고 있습니다. 특히 5G 통신 및 AI 연산 기능이 고도화됨에 따라 회로 패턴이 초미세화되면서, 기존 방식으로는 탐지하기 어려운 미세 결함이 증가하고 있습니다. 이러한 배경에서, 딥러닝 기반의 객체 탐지 기술은 기존 검사 방식의 유연성 부족과 비일관성 문제를 해결할 강력한 대안으로 산업 현장에서 연구 중입니다.
