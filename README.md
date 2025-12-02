@@ -2,6 +2,7 @@
 ### Members
 - 임주홍 전기공학 juehong9253@gmail.com
 - 정명재 융합전자공학 qwertymike@hanyang.ac.kr
+웹 링크 : https://qwertymike-pcb-defect-detection.hf.space
 
 ### Table of contents
 * [Proposal (Option1)]
