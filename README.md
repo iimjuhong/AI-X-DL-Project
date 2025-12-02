@@ -4,7 +4,7 @@
 - 정명재 융합전자공학 qwertymike@hanyang.ac.kr
 
 ### Table of contents
-* [📌 1. Proposal (Option1)](#📌-1-proposal-option1)
+* [1. Proposal (Option1)](#1-proposal-option1)
   * [1.1 배경 및 동기](#11-배경-및-동기)
   * [1.2 목적](#12-목적)
 * [📌 2. Datasets](#📌-2-datasets)
