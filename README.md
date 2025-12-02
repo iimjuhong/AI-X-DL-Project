@@ -3,7 +3,8 @@
 - 임주홍 전기공학 juehong9253@gmail.com
 - 정명재 융합전자공학 qwertymike@hanyang.ac.kr
 
-### Link  
+### Link
+- 동영상 링크 : https://www.youtube.com/watch?v=c0qATEscWno
 - 웹 링크 : https://qwertymike-pcb-defect-detection.hf.space
 
 ### Table of contents
