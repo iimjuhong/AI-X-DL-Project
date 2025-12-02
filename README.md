@@ -4,7 +4,7 @@
 - 정명재 융합전자공학 qwertymike@hanyang.ac.kr
 
 ### Table of contents
-1. [Proposal](#1.-Proposal)
+1. [📌 1. Proposal (Option1)](#📌-1.-Proposal-(Option1))
 2. [Datasets](#2.-Datasets)
 3. [Methodology](#3.-Methodology)
 4. [Evaluation & Analysis](#4.-Evaluation-&-Analysis)
