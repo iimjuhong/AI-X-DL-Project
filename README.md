@@ -8,6 +8,14 @@
 - 웹 링크 : https://qwertymike-pcb-defect-detection.hf.space
 - ipynb 파일 뷰어 링크 : https://nbviewer.org/github/iimjuhong/AI-X-DL-Project/blob/main/PCB_defect_detection_Project_%EC%B5%9C%EC%A2%85%EB%AA%A8%EB%8D%B8.ipynb
 
+### Role Division
+
+-이 프로젝트는 2인 팀으로 진행되었으며, 각 팀원의 주된 역할은 다음과 같습니다.
+
+-임주홍: 데이터셋 전처리 및 증강, YOLOv11 모델 아키텍처 기반 학습 및 구축, 공동 발표(YouTube 녹화)
+
+-정명재: 웹 데모 인터페이스 구현, 학습 결과 시각화 및 정량적/정성적 분석, 공동 발표(YouTube 녹화)
+
 ### Table of contents
 * [Proposal (Option1)]
 * [Datasets]
