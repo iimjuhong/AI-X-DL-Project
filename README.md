@@ -6,6 +6,7 @@
 ### Link
 - 동영상 링크 : https://www.youtube.com/watch?v=c0qATEscWno
 - 웹 링크 : https://qwertymike-pcb-defect-detection.hf.space
+- ipynb 파일 뷰어 링크 : https://nbviewer.org/github/iimjuhong/AI-X-DL-Project/blob/main/PCB_defect_detection_Project_%EC%B5%9C%EC%A2%85%EB%AA%A8%EB%8D%B8.ipynb
 
 ### Table of contents
 * [Proposal (Option1)]
