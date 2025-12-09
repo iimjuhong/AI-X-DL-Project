@@ -4,7 +4,7 @@ const loadingOverlay = document.getElementById('loading');
 const resultSection = document.getElementById('result-section');
 const resultImage = document.getElementById('result-image');
 const detectionList = document.getElementById('detection-list');
-
+ 
 // Drag & Drop Handlers
 dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();

@@ -1,4 +1,5 @@
 #!/bin/bash
+
 echo "Starting PCB Defect Detection App..."
 
 # Check if best.pt exists
