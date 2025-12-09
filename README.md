@@ -254,6 +254,28 @@ F1-Confidence Curve 분석 시, 신뢰도 임계값(Confidence Threshold) 0.353�
 
 - 정성 평가: (Confusion Matrix 연계) 성능이 가장 낮은 spur 클래스를 심층 분석한 결과, 
 short나 spurious_copper와의 혼동보다는 Background로 잘못 예측(18%)하는 비율이 압도적으로 높았습니다. 이는 spur 결함이 미세하고 비정형적이라 모델이 이를 놓치고 지나가는 경우 (False Negative)가 빈번함을 시사합니다. 따라서 spur와 spurious_copper 간의 유사성보다는, 미세한 spur 객체와 배경을 구분하는 식별력을 강화하는 방향으로 개선이 필요합니다.
-<img width="950" height="664" alt="image" src="https://github.com/user-at축, 공동 발표(YouTube 녹화)
+<img width="950" height="664" alt="image" src="https://github.com/user-attachments/assets/c28354c0-ffb9-4c97-9e77-b760f9689249" />
+<img width="950" height="664" alt="image" src="https://github.com/user-attachments/assets/7b7b33f5-0d7b-4d41-8ae5-046685e9ab9e" />
+<img width="950" height="741" alt="image" src="https://github.com/user-attachments/assets/36a632d0-c11d-42db-a284-b954f034b641" />
 
-정명재: 웹 데모 인터페이스 구현, 학습 결과 시각화 및 정량적/정성적 분석, 공동 발표(YouTube 녹화)
+
+## 📌 5. Related Works
+* J. Yosinski, J. Clune, Y. Bengio, and H. Lipson, "How transferable are features in deep neural networks?," in Advances in Neural Information Processing Systems (NIPS), 2014.
+* Ultralytics, "YOLOv11 Documentation.
+* J. Redmon, S. Divvala, R. Girshick, and A. Farhadi, "You Only Look Once: Unified, Real-Time Object Detection," in CVPR, 2016.
+* I. Loshchilov and F. Hutter, "Decoupled Weight Decay Regularization (AdamW)," in ICLR, 2019.
+
+## 📌 6. Conclusion
+### 6.1 요약 및 성과
+본 프로젝트에서는 Full Fine-tuning, AdamW 옵티마이저 선정과 같은 체계적인 딥러닝 파이프라인을 통해 YOLOv11 기반의 PCB 결함 탐지 모델을 성공적으로 구현하였습니다. 테스트 셋 평가 결과, mAP@0.5 0.973, 정밀도 0.967, 재현율 0.939라는 우수한 성과를 달성했습니다. 이는 본 모델이 육안 검사를 대체하여 결함을 놓치지 않고(높은 재현율) 정확하게(높은 정밀도) 찾아내는 자동화 시스템으로서의 높은 잠재력을 가지고 있음을 입증합니다. 본 프로젝트의 성과는 높은 수치 달성에 그치지 않고, mAP@0.5와 mAP@0.5:0.95 간의 격차를 분석하고 PR Curve 및 Confusion Matrix를 통해, 모델이 spur 클래스에 취약하고 정밀한 위치 예측 능력이 부족하다는 구체적인 한계를 심층적으로 도출했다는 데 의의가 있습니다.
+
+### 6.2 한계
+본 모델은 mAP@0.5:0.95 수치가 0.520으로, 결함의 경계선을 정밀하게 회귀하는 데 명확한 한계를 보였습니다. 이는 PCB 검사에서 결함의 정확한 크기 측정이 중요함을 고려할 때 개선이 필요한 부분입니다. 특히 spur 결함의 저조한 성능과, 이것이 spurious_copper와 시각적으로 혼동되는 문제는 향후 우선적으로 해결해야 할 과제입니다. 향후, spur와 같이 비정형적인 결함 데이터를 추가 확보하고, 특정 클래스에 가중치를 부여하는 손실 함수(예: Focal Loss)를 적용하는 방안을 모색할 수 있습니다. 또한, DFL(Distribution Focal Loss) 파라미터 튜닝이나 고해상도 이미지(1280x1280) 학습을 통해 미세 결함의 특징 포착 능력을 향상시키는 방안을 고려할 수 있습니다.
+
+### 6.3 Role Division
+
+이 프로젝트는 2인 팀으로 진행되었으며, 각 팀원의 주된 역할은 다음과 같습니다.
+
+- 임주홍: 데이터셋 전처리 및 증강, YOLOv11 모델 아키텍처 기반 학습 및 구축, 공동 발표(YouTube 녹화)
+
+- 정명재: 웹 데모 인터페이스 구현, 학습 결과 시각화 및 정량적/정성적 분석, 공동 발표(YouTube 녹화)
