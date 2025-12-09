@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*- 
 """모델 학습 모듈"""
 
 from pathlib import Path
-from config import Config
+from config import Config 
 
 
 class ModelTrainer:

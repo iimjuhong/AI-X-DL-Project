@@ -1,4 +1,4 @@
-const dropZone = document.getElementById('drop-zone');
+const dropZone = document.getElementById('drop-zone'); 
 const fileInput = document.getElementById('file-input');
 const loadingOverlay = document.getElementById('loading');
 const resultSection = document.getElementById('result-section');
