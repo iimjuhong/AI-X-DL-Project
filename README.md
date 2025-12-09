@@ -3,8 +3,10 @@
 - 임주홍 전기공학 juehong9253@gmail.com
 - 정명재 융합전자공학 qwertymike@hanyang.ac.kr
 
-### Link  
+### Link
+- 동영상 링크 : https://www.youtube.com/watch?v=c0qATEscWno
 - 웹 링크 : https://qwertymike-pcb-defect-detection.hf.space
+- ipynb 파일 뷰어 링크 : https://nbviewer.org/github/iimjuhong/AI-X-DL-Project/blob/main/PCB_defect_detection_Project_%EC%B5%9C%EC%A2%85%EB%AA%A8%EB%8D%B8.ipynb
 
 ### Table of contents
 * [Proposal (Option1)]
@@ -269,3 +271,11 @@ short나 spurious_copper와의 혼동보다는 Background로 잘못 예측(18%)�
 
 ### 6.2 한계
 본 모델은 mAP@0.5:0.95 수치가 0.520으로, 결함의 경계선을 정밀하게 회귀하는 데 명확한 한계를 보였습니다. 이는 PCB 검사에서 결함의 정확한 크기 측정이 중요함을 고려할 때 개선이 필요한 부분입니다. 특히 spur 결함의 저조한 성능과, 이것이 spurious_copper와 시각적으로 혼동되는 문제는 향후 우선적으로 해결해야 할 과제입니다. 향후, spur와 같이 비정형적인 결함 데이터를 추가 확보하고, 특정 클래스에 가중치를 부여하는 손실 함수(예: Focal Loss)를 적용하는 방안을 모색할 수 있습니다. 또한, DFL(Distribution Focal Loss) 파라미터 튜닝이나 고해상도 이미지(1280x1280) 학습을 통해 미세 결함의 특징 포착 능력을 향상시키는 방안을 고려할 수 있습니다.
+
+### 6.3 Role Division
+
+이 프로젝트는 2인 팀으로 진행되었으며, 각 팀원의 주된 역할은 다음과 같습니다.
+
+- 임주홍: 데이터셋 전처리 및 증강, YOLOv11 모델 아키텍처 기반 학습 및 구축, 공동 발표(YouTube 녹화)
+
+- 정명재: 웹 데모 인터페이스 구현, 학습 결과 시각화 및 정량적/정성적 분석, 공동 발표(YouTube 녹화)
